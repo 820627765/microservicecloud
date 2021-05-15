@@ -1,0 +1,47 @@
+1，mavne 依赖中 <type>pom</type> 和 <scope>import</scope> 的作用。
+2，约定 > 配置 > 编码
+   如：约定项目模块结构 -> 进行配置  ->  再进行编码
+
+
+3，Serializable 序列化接口的具体作用？
+   3.1 用法：定义一个类时实现序列化接口
+   public class User implement Serializable{
+    //这个变量是实现 Serializable 接口用的，可以写，也可以不写（不写编译器会有警告）
+    private static final long serialVersionUID = 1L;
+    ......
+   }
+   3.2 该接口有什么作用呢？
+   一个类只有实现了 Serializable 接口，它的对象才能被序列化。
+   3.3 什么是序列化 和 反序列化？
+   序列化是将对象状态转换为可以保存或传输的格式的过程，这个过程的结果是将对象转换为字节序列。
+   与序列化相对的是反序列化，它将字节序列恢复（转换）为对象，这个过程称为反序列化。
+   这两个过程结合起来可以轻松完成对象（数据）的存储和传输。
+   3.4 什么时候需要序列化？
+   当我们需要把对象的状态信息通过网络进行传输，或者需要将对象的状态信息持久化，以便将来使用的时候进行反序列化。
+   3.5 Serializable 接口描述
+   这是一个空接口，也就是一个标准。就像学生举手表示一个求解答的标志一样。
+   也就是：Serializable 接口是java 提供用来进行 异地共享实例对象的机制，实现这个接口即可。
+   3.6 为什么要定义 serialversionUID 变量？
+   如果我们没有声明一个 serialversionUID 变量，接口会默认生成一个 serialversionUID 。
+   但是强烈建议用户自定义一个 serialversionUID，因为默认的 serialversionUID 对class 的细节非常敏感，
+   反序列化时可能会导致 InvalidClassException 异常。
+
+   serialversionUID 的工作机制如下：在序列化的时候系统将serialversionUID 写入到序列化的文件中去，当反
+   序列化的时候系统会先去检查文件中的serialversionUID 是否跟当前文件的 serialversionUID 是否一致，如果一致
+   则反序列化成功，否则说明当前类跟序列化后的类发生了变化，比如成员变量等发生了变化，那么在反序列化时就会发生crash，
+   并发生错误，抛出InvalidClassException。
+
+
+4,@SuppressWarnings("serial") 注解的作用
+  @SuppressWarnings() 该注解用于抑制编译器产生的警告信息。参数值举例：
+  @SuppressWarnings("all") 抑制所有警告信息
+  @SuppressWarnings("serial") 抑制序列化类没有加 serialversionUID 的警告
+  .....
+  从上面可知，在类实现 Serializable 接口的时候，我们一般建议写上 serialversionUID 变量，但是不必须（接口默认会加一个）。
+  但是如果不写，编译器会黄色警告。加上这个注解后，就不会警告了。
+  但是我们强烈建议手动加上 serialversionUID 变量。
+
+
+microservicecloud
+
+com.example.springcloud
