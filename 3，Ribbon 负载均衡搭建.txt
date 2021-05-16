@@ -1,0 +1,124 @@
+首先，我们可以去github 查看Ribbon 的源码，了解负载均衡的各种算法以及其他代码逻辑。
+
+1，spring cloud Ribbon 是什么？
+   是基于Netflix Ribbon 实现的一套“客户端” 负载均衡工具。
+   简单的说，Ribbon 是Netflix 公司 发布的开源项目，主要功能是提供客户端的软件负载均衡算法，将Netflix 的中间层服务连接在一起。
+   Ribbon 客户端组件提供一些列完善的配置项，如连接超时，重试等。简单的说，就是在配置文件中列出 Load Balancer(简称LB）后面
+   所有的机器，Ribbon 会自动的帮助你基于某种规则（如轮询，随机连接等）去连接这些机器。我们也很容易使用Ribbon实现自定义的负载均衡算法。
+
+   总结：
+    - 客户端的负载均衡工具。将负载均衡集成到消费方，消费方从服务注册中心获知有哪些地址可用，然后自己再从这些地址中选择出一个合适的服务器。
+      Ribbon 就是这样一个“进程内的LB”，它是一个类库，集成于消费方进程，消费方通过它来获取到服务提供方的地址。
+    - Load Balancer 就是负载均衡的意思，简称 LB。
+    - 负载均衡简单的说就是将用户请求平摊的分配到多个服务上，从而达到系统的高可用，简称 HA。
+    - 常见的负载均衡软件有Nginx，LVS，硬件F5（相当强大，贵）等。
+    - spring cloud 的负载均衡算法可以自定义。
+    - Ribbon 其实就是一个软负载均衡的客户端组件，它可以和其他所需要请求的客户端结合使用，和eureka 集合只是其中的一个实例。
+
+2，搭建spring cloud Ribbon 步骤
+    因为Ribbon 是集成再客户端的，所以我们将ribbon 集成再服务的消费者端。
+    1）添加Ribbon 的依赖，在 microservicecloud-consumer-dept-80 模块中添加ribbon 的依赖。
+        <!-- Ribbon相关 -->
+        <!--因为Ribbon是需要用到 Eureka 的所以，也需要引入Eureka 客户端依赖-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <!--没有跟-server 说明是eureka客户端-->
+            <artifactId>spring-cloud-starter-eureka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-ribbon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    2）修改客户端配置，配置eureka 的客户端配置，因为现在客户端先得经过Eureka了
+        eureka:
+          client:   #eureka 的客户端配置
+            service-url:
+              #defaultZone: http://localhost:7001/eureka   # 指定eureka 的注册地址（单eureka版）
+              defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/,http://eureka7003.com:7003/eureka/   # 指定eureka集群 的注册地址
+          instance:
+            instance-id: microservicecloud-dept8001  # 指定该微服务注册到 eureka 后 status 显示的信息，叫实例id。默认是“ip:应用名:端口号”
+            prefer-ip-address: true                  # 指定在eureka 的页面的 status 字段，鼠标悬浮可以显示服务端的ip 地址
+
+    3）编写代码，通过eureka来访问目标服务 并且 客户端需要加上Ribbon 的负载均衡功能
+        3.1）客户端主启动类启用 Eureka 客户端功能 @EnableEurekaClient
+        3.2）将客户端访问服务通过微服务的“服务名”来访问目标微服务。
+            原来我们是直接通过ip访问具体某一台微服务，如：restTemplate.getForObject("http://localhost:8001/dept/get/1", Dept.class)
+            现在我们是通过”服务名“来访问目标服务，写法为：restTemplate.getForObject("http://服务名/dept/get/1", Dept.class)，如：
+             restTemplate.getForObject("http://MICROSERVICECLOUD-DEPT/dept/get/1", Dept.class)
+
+        如上已经从代码层面实现了通过微服务名来访问微服务。
+
+        3.3）客户端开启负载均衡功能 @LoadBalanced
+             我们之前通过 RedisTemplate 直接访问目标服务。现在要加上负载均衡的功能只需要加上这个注解即可。
+             @Configuration
+             public class ConfigBean {
+                 @LoadBalanced  //开启负载均衡功能
+                 @Bean
+                 public RestTemplate restTemplate(){
+                     return new RestTemplate();
+                 }
+             }
+        3.4）测试
+        3.5）结论：消费者端通过微服务名来访问服务了，不需要些ip 和 端口信息。
+
+3，Ribbon 工作原理（Ribbon 工作步骤）
+    1）先从eureka 中找到能提供服务的列表（服务发现）。
+    2）根据负载均衡算法（默认是轮询）从服务列表中选择一个目标服务器来访问。
+
+4，搭建服务提供者分布式环境（多eureka集群，多服务提供者）
+    1）新建服务提供者项目 microservicecloud-provider-dept-8002、microservicecloud-provider-dept-8003 .....
+    2）修改新建项目的端口等基本配置，注意对外暴露的服务名字（应用名）要是同一个。
+    3）修改各自的主启动类；mybatis 等配置
+    4）这里，我们的环境，将每个微服务都访问自己的数据库。也就是我们需要建立 clouddb02、cloud03 的数据库
+    5）测试单机服务提供者、测试消费者端是否能访问分布式服务提供者（默认轮询访问了）,通过结果中 dbName 来判断是否访问了不同的服务。
+
+5，Ribbon 的负载均衡策略
+    5.1）Ribbon 的7种负载均衡策略
+        - RoundRobinRule  轮询
+        - RandomRule 随机
+        - AvailabilityFilteringRule 会先过滤掉由于多次访问故障而处于断路器跳闸的服务，还有并发的连接数量超过阈值的服务，然后
+                                    从剩余的服务列表按照轮询策略进行访问。
+        - WeightedResponseTimeRule  根据平均响应时间计算所有服务的权重，响应时间越快服务权重越大被选中的概率越高。刚启动时如果
+                                    统计信息不足，则使用RoundRobinRule策略，等统计信息足够后会切换到该策略
+        - RetryRule                 先按照轮询策略获取服务，如果获取服务失败则在指定时间内会进行重试（重试过程访问不到会返回给客户端 Error Page），获取可用的服务。
+        - BestAvailableRule         会先过滤掉由于多次访问故障而处于断路器跳闸状态的服务，然后选择一个并发量最小的服务
+        - ZoneAvoidanceRule         默认规则，符合判断server所在区域的性能和server的可用性选择服务器。
+
+    5.2）如何指定使用某种负载均衡策略
+        /**
+         * 如果显示在容器中指定了Ribbon 的负载均衡策略，则就使用指定的，否则使用默认的
+         * @return
+         */
+        @Bean
+        public IRule iRule(){
+            return new RoundRobinRule();
+        }
+
+    5.3）如何自定义 Ribbon 的负载均衡策略
+        注意：自定以的 Ribbon 负载策略类的配置类，不能放在 @ComponentScan 所扫描的包及子包下，否则我们自定义的这个配置类就会被所有
+        的Ribbon 客户端所共享，也就是说不能达到对特定服务的定制化目的。
+
+        需求场景：依旧轮询策略，但是加上新需求，每个服务器要求被调用5次。即一千是每台机器以此，现在是每台机器5次轮询。
+        1）新建自定义负载均衡策略类，并实现逻辑 AbstractLoadBalancerRule 抽象类，并实现对应的策略逻辑
+        public class RandomRuleSelf extends AbstractLoadBalancerRule{.....}
+        2）新建自定义负载均衡的配置类
+        @Configuration
+        public class MySelfRule {
+            @Bean
+            public IRule iRule(){
+                //这里 RandomRuleSelf 是我们自定义的负载均衡策略
+                return new RandomRuleSelf();
+            }
+        }
+        4）为指定服务指定使用自定义的负载均衡策略配置
+        @RibbonClient(name = "MICROSERVICECLOUD-DEPT",configuration = MySelfRule.class)
+        name 指定用于那个微服务
+        configuration 指定负载均衡策略的配置类

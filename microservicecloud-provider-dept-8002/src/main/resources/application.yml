@@ -1,0 +1,40 @@
+server:
+  port: 8002
+  
+mybatis:
+  config-location: classpath:mybatis/mybatis.cfg.xml        # mybatis配置文件所在路径
+  type-aliases-package: com.example.springcloud.entity    # 所有Entity别名类所在包
+  mapper-locations:
+  - classpath:mybatis/mapper/**/*.xml                       # mapper映射文件
+    
+spring:
+   application:
+    name: microservicecloud-dept 
+   datasource:
+    type: com.alibaba.druid.pool.DruidDataSource            # 当前数据源操作类型
+    driver-class-name: org.gjt.mm.mysql.Driver              # mysql驱动包
+    url: jdbc:mysql://localhost:3306/cloudDB02             # 数据库名称
+    username: root
+    password: znbznb
+    dbcp2:
+      min-idle: 5                                           # 数据库连接池的最小维持连接数
+      initial-size: 5                                       # 初始化连接数
+      max-total: 5                                          # 最大连接数
+      max-wait-millis: 200                                  # 等待连接获取的最大超时时间
+
+eureka:
+  client:   #eureka 的客户端配置
+    service-url:
+      #defaultZone: http://localhost:7001/eureka   # 指定eureka 的注册地址（单eureka版）
+      defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/,http://eureka7003.com:7003/eureka/   # 指定eureka集群 的注册地址
+  instance:
+    instance-id: microservicecloud-dept8002  # 指定该微服务注册到 eureka 后 status 显示的信息，叫实例id。默认是“ip:应用名:端口号”
+    prefer-ip-address: true                  # 指定在eureka 的页面的 status 字段，鼠标悬浮可以显示服务端的ip 地址
+
+
+info:
+  app.name: microservicecloud
+  company.name: www.example.com
+  build.artifactId: $project.artifactId$  # 经过解析后，会使用项目的 project.artifactId 作为值
+  vuild.version: $project.version$  # 经过解析后，会使用项目的 project.version$ 作为值
+

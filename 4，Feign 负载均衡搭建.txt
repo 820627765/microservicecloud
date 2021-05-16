@@ -1,0 +1,80 @@
+1，什么是Feign？
+    Feign 是一个声明式 WebService 客户端。使用Feign 能让编写 WebService 客户端更加简单，它的使用方法是定义一个接口，然后
+    在上面添加注解，同时也支持 JAX-RS 标准的注解。Feign 也支持可插拔式的编码器和解码器。Spring cloud 对 Feign 进行了封装，
+    使其支持了 Spring MVC 标准注解 和 HttpMessageConverters 。Feign 可以与Eureka 和 Ribbon 组合使用以支持负载均衡。
+
+    总结：
+    1）如何使用？
+    - 定义一个接口，并在上面添加注解。
+    2）总结一下：
+    Feign 式一个声明式的Web服务客户端，使得编写Web服务客户端变得非常容易。只需要创建一个接口，然后在上面谭家注解即可。
+    3）Feign 可以实现什么？
+    通过接口 + 注解，获得服务调用。（我们以前是可以通过 服务名 来调用服务）
+
+2，Feign 能干什么？
+    Feign 旨在使编写Java Http 客户端变得更容易。
+    前面我们使用了Ribbon + RestTemplate 时，利用 RestTempate 对http 请求的封装处理，形成了一套模板化的调用方法。
+    但是在实际开发中，由于对服务依赖的调用可能不止一处，往往一个接口会被多次调用，所以通常都会针对每个微服务自行封装一些客户端
+    类来包装这些依赖服务的调用。所以，Feign 在次基础上做了进一步封装，有它来邦族我们定义和实现依赖服务接口的定义。在Feign的
+    实现下，我们只需要创建一个接口并使用注解的方式来配置它（以前时Dao接口上面标注@Mapper 注解，现在时一个微服务接口上标注Feign注解即可）
+    ，即可完成对服务提供方的接口绑定，简化了使用Spring cloud Ribbon时，自动封装服务调用客户端的开发量。
+    面向接口访问服务端。
+
+3，搭建Feign 项目
+    1）新建 microservicecloud-consumer-dept-feign 模块
+    2）添加依赖
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-feign</artifactId>
+    </dependency>
+    3）修改配置文件
+    4）编写服务接口，因为服务接口消费者方需要用，所以将服务接口定义到 api 模块，因为接口需要用到 Feign 的注解，所以api 模块也需要引入Feign 依赖
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-feign</artifactId>
+    </dependency>
+    接口声明如下：
+    @FeignClient(value = "MICROSERVICECLOUD-DEPT")  //指定是那个 微服务 的Feign 客户端
+    public interface DeptClientService {
+        @RequestMapping(value = "/dept/get/{id}", method = RequestMethod.GET)
+        public Dept get(@PathVariable("id") long id);
+
+        @RequestMapping(value = "/dept/list", method = RequestMethod.GET)
+        public List<Dept> list();
+
+        @RequestMapping(value = "/dept/add", method = RequestMethod.POST)
+        public boolean add(Dept dept);
+    }
+    5）在 microservicecloud-consumer-dept-feign 项目中修改 通过Feign 的方式访问服务的Controller 逻辑
+    @RestController
+    public class DeptController_Consumer {
+        @Autowired
+        private DeptClientService deptClientService;
+
+        @RequestMapping(value = "/consumer/dept/get/{id}")
+        public Dept get(@PathVariable("id") Long id) {
+            return this.deptClientService.get(id);
+        }
+
+        @RequestMapping(value = "/consumer/dept/list")
+        public List<Dept> list() {
+            return this.deptClientService.list();
+        }
+
+        @RequestMapping(value = "/consumer/dept/add")
+        public Object add(Dept dept) {
+            return this.deptClientService.add(dept);
+        }
+    }
+    6）修改主启动类，启用Feign
+    给著启动类加 @EnableFeignClients(basePackages={"com.example.springcloud"})  basePackages 指定Feign 要扫描的包
+    7）测试
+
+4，总结
+   Feign 集成了Ribbon，利用Ribbon 维护了 某一个服务的 服务列表，并通过轮询实现了客户端的负载均衡。而与Ribbon 不同的是，通过Feign
+   只需要定服务便规定接口且以声明式的方法优雅而简单的实现了服务调用。
+
+   也就是，目前我们调用微服务的方式有两种了：
+   -- RestTemplate + 微服务名称 + Ribbon
+   -- Feign 的方式（Feing 本身集成了 Ribbon 的）
+

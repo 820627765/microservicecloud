@@ -11,8 +11,8 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 public class DeptController_Consumer {
-	private static final String REST_URL_PREFIX = "http://localhost:8001";
-	//private static final String REST_URL_PREFIX = "http://MICROSERVICECLOUD-DEPT";
+	//private static final String REST_URL_PREFIX = "http://localhost:8001";
+	private static final String REST_URL_PREFIX = "http://MICROSERVICECLOUD-DEPT";
 
 	/**
 	 * 使用 使用restTemplate 访问 restful 接口非常的简单粗暴无脑。 (url,requestMap,ResponseBean.class)
