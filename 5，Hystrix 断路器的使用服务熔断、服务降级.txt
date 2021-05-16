@@ -1,0 +1,124 @@
+1，分布式系统面临的问题
+    复杂分布式体系结构中的应用程序有数十个依赖关系，每个依赖关系在某些时候将不可避免的失败。
+    如果一个请求依赖于 A、B、C、D 四个服务。如果请求开始后 D 超时了，会导致所有请求都等在D的服务响应上。
+    服务雪崩：多个微服务之间调用的时候，假设服务A 调用 服务B 和 服务C，服务B 和 服务C 有调用其他微服务，这样服务
+            一层层调用下去，一层层加宽加深的服务调用，这就是所谓的 ”扇出“。如果扇出的链路上某个微服务的调用响应时间
+            过长或者不可用，对微服务A的调用就会占用越来越多的系统资源，进而引起系统崩溃（如果大量的调用A的服务一直停着
+            就会导致资源没有及时消除而导致资源紧张），这就是所谓的 ”雪崩效应“。
+
+    对于高流量的应用来说，单一的后端依赖可能会导致所有服务器上的所有资源都在几秒钟内达到饱和。比失败更糟糕的式，这些应用
+    程序还可能导致服务之间的延迟增加，备份队列，线程和其他系统资源紧张，导致整个系统发生更多的级联故障。这些都表示需要对
+    故障和延迟进行隔离和管理，以便单个依赖关系的失败，不能取消整个应用程序。
+
+    那么我们对于单一依赖故障的情况，最好的办法是让它及时失败，不要让资源一直等待，最终拖累整个系统。
+
+1，什么式 Hystrix ？
+    Hystrix 是一个用于处理分布式系统的延迟和容错的开源库，在分布式系统里，许多依赖不可避免的会调用失败，比如超时，异常等，
+    Hystrix 能够保证在一个依赖出问题的情况下，不会导致整体服务失败，避免级联故障，以提高分布式系统的弹性。
+
+    ”断路器“本身是一种开关装置，当某个服务单元发生故障之后，通过断路器的故障监控（类似熔断保险丝）向调用方返回一个
+    符合预期的、可处理的备选响应（FallBack），而不是长时间等待或者抛出调用方无法处理的异常，这样就保证了服务调用方
+    线程不会被长时间、不必要的占用，从而避免了故障在分布式系统中的蔓延，乃至雪崩。
+
+2，hystrix 有什么用？
+    服务降级
+    服务熔断
+    服务限流
+    接近实时的监控
+
+3，一些概念
+    服务熔断：
+        熔断机制是应对雪崩效应的一种微服务链路保护机制。
+        当扇出的链路的某个微服务不可用或者响应时间太长时，会进行服务降级，进而熔断该节点微服务的调用，快速返回”错误“的
+        响应信息FallBack，当检测到该节点微服务调用响应正常后恢复调用链路。在springcloud 框架里熔断机制通过 Hystrix实现。
+        Hystrix 会监控微服务间调用的情况，当失败的调用达到一定阈值，缺省时5秒内20次调用失败就会启动熔断机制。熔断机制的
+        注解是 @HystrixCommand
+
+        其实就是服务端出现异常后，有一个兜底的逻辑处理，而这个逻辑适合业务代码分开的单独逻辑，就像AOP的异常后逻辑一样。
+        这回造成一个问题，每个正常业务逻辑都会对应一个 FallBack 的兜底逻辑，如此导致方法膨胀。
+    服务降级：
+        整体资源快不够了，忍痛将某些服务资源先关掉，待度过难关，再将被关掉的服务资源开启回来。
+        这其中被关掉的服务就叫服务降级。而这种服务降级直接的体现就是给到用户的是一个友好的反馈信息，如”资源紧张“请稍后再试。
+
+        注意：服务降级处理是再客户端实现完成的，与服务端没有关系。
+
+    服务熔断 和 服务降级的区分和总结：
+        服务熔断写在客户端，每个业务方法的FallBack 都会写一个兜底逻辑。会造成成服务端的方法膨胀，且熔断逻辑并没有和业务方法解耦。
+        服务降级写在客户端，当调用某个服务方法出现异常时由指定的 fallbackFactory 的逻辑来处理，客户端直接返回一个可接收的信息响应客户。
+        服务降级可以处理服务提供者直接挂了（服务降级了）时，客户端的 fallbackFactory 的逻辑来兜底执行，这就是当服务端挂了时客户端自己准备一个 fallback 兜底逻辑。
+
+3，搭建 Hystrix 环境
+    -- 一下是服务熔断的案例
+    1）新建一个带 熔断 机制的微服务提供者 microservicecloud-provider-dept-hystrix-8001 模块
+    2) 添加 hystrix 的依赖
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-hystrix</artifactId>
+        </dependency>
+    3）配置 application.yml
+        修改一下 eureka 中注册的当前的实例id（instance-id），区别一下 没有 hystrix 的服务提供者 ，id值为：microservicecloud-dept8001-hystrix
+    4）编写代码添加服务处理中发生异常后的处理方法(注意该处理方法在服务端)
+        /*
+        @HystrixCommand(fallbackMethod = "processHystrix_Get")
+        该注解的作用是：当发生异常后，向调用方返回一个符合预期的，可处理的备选响应（FallBack），
+        这个备选响应其实是服务端提供的一个异常后的处理逻辑，当前注解表示出现异常后，调用服务端的 processHystrix_Get 方法 返回结果。
+         */
+        @HystrixCommand(fallbackMethod = "processHystrix_Get")
+        @RequestMapping(value = "/dept/get/{id}", method = RequestMethod.GET)
+        public Dept get(@PathVariable("id") Long id){
+            Dept dept = service.get(id);
+            //处理过程中发生异常，或许业务场景下还有其他异常场景
+            if(null == dept){
+                throw new RuntimeException("该ID：" + id + "没有对应的信息");
+            }
+            return dept;
+        }
+    5）服务端主启动类加上 Hystrix 的熔断机制的支持
+       @EnableCircuitBreaker  //对hystrix 熔断机制的支持
+    6）测试，当访问不存在的 id 信息时，会返回没有信息的结果
+
+    -- 一下是服务降级的案例
+    1）修改 microservicecloud-api 工程，根据已经有的 DeptClientService 接口新建一个实现了 FallbackFactory 接口
+      的类 DeptClientServiceFallbackFactory
+      @Component  //这个注解必须要添加
+      public class DeptClientServiceFallbackFactory implements FallbackFactory<DeptClientService> {
+          @Override
+          public DeptClientService create(Throwable throwable) {
+              //这里将原来熔断 的Fallback 处理逻辑全部 拿到这里来处理，下面的每一个方法都是对应服务方法发生异常后的 处理逻辑
+              return new DeptClientService() {
+                  @Override
+                  public Dept get(long id) {
+                      return new Dept().setDeptno(id).setDname("没有对应的信息，此刻服务已经关闭");
+                  }
+
+                  @Override
+                  public List<Dept> list() {
+                      return null;
+                  }
+
+                  @Override
+                  public boolean add(Dept dept) {
+                      return false;
+                  }
+              };
+          }
+      }
+    2）给原来的 DeptClientService 接口上的注解 @FeignClient(value = "MICROSERVICECLOUD-DEPT"), 增加一个参数 fallbackFactory 指定 发生错误时的 FallBack 处理逻辑
+        @FeignClient(value = "MICROSERVICECLOUD-DEPT",fallbackFactory = DeptClientServiceFallbackFactory.class)
+        public interface DeptClientService {
+            @RequestMapping(value = "/dept/get/{id}", method = RequestMethod.GET)
+            public Dept get(@PathVariable("id") long id);
+
+            @RequestMapping(value = "/dept/list", method = RequestMethod.GET)
+            public List<Dept> list();
+
+            @RequestMapping(value = "/dept/add", method = RequestMethod.POST)
+            public boolean add(Dept dept);
+        }
+    3）修改 microservicecloud-consumer-dept-feign 工程修改 yml
+        feign:
+          hystrix:
+            enabled: true  # 表示再客户端开启 hystrix 功能（比如 降级功能）
+    4）测试，关掉服务提供者，测试是否返回了FallbackFactory 写好的降级逻辑
+       注意：服务降级的逻辑其实是再客户端处理的。让客户端在服务端不可用时也会获得对应的提示信息。不会一直等待耗死服务器。
+
