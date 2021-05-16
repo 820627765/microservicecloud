@@ -25,7 +25,8 @@ spring:
 eureka:
   client:   #eureka 的客户端配置
     service-url:
-      defaultZone: http://localhost:7001/eureka   # 指定eureka 的注册地址
+      #defaultZone: http://localhost:7001/eureka   # 指定eureka 的注册地址（单eureka版）
+      defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/,http://eureka7003.com:7003/eureka/   # 指定eureka集群 的注册地址
   instance:
     instance-id: microservicecloud-dept8001  # 指定该微服务注册到 eureka 后 status 显示的信息，叫实例id。默认是“ip:应用名:端口号”
     prefer-ip-address: true                  # 指定在eureka 的页面的 status 字段，鼠标悬浮可以显示服务端的ip 地址

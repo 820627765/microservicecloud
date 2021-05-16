@@ -117,3 +117,61 @@
                         "build":{"artifactId":"$project.artifactId$"},
                         "vuild":{"version":"$project.version$"}}
 
+7）什么是服务发现呢？
+    前面经过我们配置，已经将服务注册进Eureka 中了。那么什么是服务发现呢？
+    -- 可以通过服务发现功能得到注册进eureka 里面的微服务信息。
+    -- 怎么实现服务发现呢？
+        1）主启动类开启服务发现的能力 @EnableDiscoveryClient
+           在需要查询eureka中注册的服务列表的微服务的主启动类上加上该启用注解。
+        2）编写代码查询eureka 中的微服务列表和具体服务实例的信息
+           @Autowired
+           private DiscoveryClient discoveryClient; //该对象是spring提供的，用于去eureka中查询微服务
+           //其实所谓服务发现，就是可以通过一个访问路径，将信息展示出来
+           @RequestMapping(value = "/dept/discovery", method = RequestMethod.GET)
+           public Object discovery(){
+           	    //通过 discoveryClient 去 eureka 查看有哪些微服务，返回微服务列表
+           		List<String> list = discoveryClient.getServices();
+           		System.out.println("**********" + list);
+
+           		// 通过 discoveryClient 的getInstances 方法 通过服务名称查询 是这个服务名称的 微服务实例列表（一个服务的集群）。
+           		List<ServiceInstance> srvList = discoveryClient.getInstances("MICROSERVICECLOUD-DEPT");
+           		for (ServiceInstance element : srvList) {
+           			//通过微服务实例访问微服务的Id，服务的主机，服务的端口号，服务的uri 等信息
+           			System.out.println(element.getServiceId() + "\t" + element.getHost() + "\t" + element.getPort() + "\t"
+           					+ element.getUri());
+           		}
+           		return this.discoveryClient;
+           }
+        3）测试，访问服务发现请求
+
+8，eureka 的集群配置（注册中心高可用）
+    1）新建模块 microservicecloud-eureka-7002，microservicecloud-eureka-7003
+    2）配置依赖
+    3）给本机设置host 域名，如果不设置这个通过端口号来区分，测试过有问题，等后面有时间再分析原因。
+        127.0.0.1 eureka7001.com
+        127.0.0.1 eureka7002.com
+        127.0.0.1 eureka7003.com
+    4）配置各自的 application.yml （修改域名（修改host文件，也可以不修改哈）的区分和映射）
+        server:
+          port: 7001
+
+        eureka:
+          instance:
+            hostname: eureka7001.com  # eureka 服务端实例的名称，这里配置域名。
+          client:
+            register-with-eureka: false # false 表示不向注册中心注册自己
+            fetch-registry: false # false 表示自己就就是注册中心，我的职责就是维护服务实例，并不需要去检索服务
+            service-url:
+              #集群环境需要配置其他 eureka 的服务端的访问地址，多个用逗号分隔。注意集群环境是配其他的eureka 的地址，自己的不需要配置了
+              defaultZone : http://localhost:7002/eureka/,http://localhost:7003/eureka/  # 设置与 erureka server 交互的地址，查询服务和注册服务都要依赖这个地址。就是对外暴露的eureka 的服务地址
+    5）修改eureka个服务各自的主启动类
+    6）修改其他服务提供者（这个案例是 部门服务提供者），修改他们注册进 eureka 集群的注册地址为 以上3个 eureka的服务注册地址
+        eureka:
+          client:   #eureka 的客户端配置
+            service-url:
+              #defaultZone: http://localhost:7001/eureka   # 指定eureka 的注册地址（单eureka版）
+              defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka,http://eureka7003.com:7003/eureka   # 指定eureka集群 的注册地址
+    6）启动各个服务，查看每个eureka 服务是否关联着其他两个eureka 服务、每个eureka 服务是否注册了同一个 部门服务提供者
+    自此：3个eureka 集群，1个服务提供者就成功了 。
+
+9，
