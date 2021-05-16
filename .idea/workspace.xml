@@ -2,19 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="38f671c9-7483-46ea-a74b-aa9532769d7e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_atguigu_springcloud_microservicecloud_api_1_0_SNAPSHOT.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_netflix_zuul_zuul_core_1_3_0.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__commons_io_commons_io_2_4.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_cloud_spring_cloud_starter_zuul_1_3_1_RELEASE.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/7，zuul 路由网关.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/microservicecloud-zuul-gateway-9527/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/microservicecloud-zuul-gateway-9527/src/main/java/com/example/springcloud/Zuul_9527_StartSpringCloudApp.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/microservicecloud-zuul-gateway-9527/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/8，springCloud Config 分布式配置中心.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -178,7 +166,7 @@
       <workItem from="1621091028943" duration="16236000" />
       <workItem from="1621134638193" duration="178000" />
       <workItem from="1621134842521" duration="923000" />
-      <workItem from="1621151547793" duration="27284000" />
+      <workItem from="1621151547793" duration="27357000" />
     </task>
     <task id="LOCAL-00001" summary="update">
       <created>1621151617191</created>
@@ -229,7 +217,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621185199798</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="update">
+      <created>1621188923408</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1621188923408</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -253,10 +248,10 @@
       <screen x="0" y="0" width="1280" height="680" />
     </state>
     <state x="446" y="46" key="#com.intellij.ide.util.MemberChooser/0.0.1280.680/1920.0.1920.1040@0.0.1280.680" timestamp="1621180563330" />
-    <state x="70" y="0" key="CommitChangelistDialog2" timestamp="1621185199015">
+    <state x="70" y="0" key="CommitChangelistDialog2" timestamp="1621188921724">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state x="70" y="0" key="CommitChangelistDialog2/0.0.1280.680/1920.0.1920.1040@0.0.1280.680" timestamp="1621185199015" />
+    <state x="70" y="0" key="CommitChangelistDialog2/0.0.1280.680/1920.0.1920.1040@0.0.1280.680" timestamp="1621188921724" />
     <state x="493" y="180" key="FileChooserDialogImpl" timestamp="1621129741030">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
@@ -307,10 +302,10 @@
     </state>
     <state x="284" y="0" key="SettingsEditor/0.0.1280.680/1920.0.1920.1040@0.0.1280.680" timestamp="1621129748995" />
     <state x="2381" y="164" key="SettingsEditor/0.0.1280.680/1920.0.1920.1040@1920.0.1920.1040" timestamp="1621090792765" />
-    <state x="233" y="74" key="Vcs.Push.Dialog.v2" timestamp="1621185208201">
+    <state x="233" y="74" key="Vcs.Push.Dialog.v2" timestamp="1621188929940">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state x="233" y="74" key="Vcs.Push.Dialog.v2/0.0.1280.680/1920.0.1920.1040@0.0.1280.680" timestamp="1621185208201" />
+    <state x="233" y="74" key="Vcs.Push.Dialog.v2/0.0.1280.680/1920.0.1920.1040@0.0.1280.680" timestamp="1621188929940" />
     <state x="318" y="128" key="git4idea.merge.GitPullDialog" timestamp="1621129756801">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
