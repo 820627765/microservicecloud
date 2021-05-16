@@ -1,0 +1,49 @@
+1,什么是 hystrixDashboard ？
+    除了提供服务熔断和服务降级外，hystrix 还提供了”准实时的调用监控（Hystrix Dashboard）“，Hystrix 会持续地记录所有通过
+    Hystrix 发起的请求的执行信息，并以统计报表 和 图形的形式展示给用户，包括每秒执行多少请求，多少执行成功，多少执行失败等信息。
+    Netfilix 公司通过 hystrix-metrics-event-stream 项目实现了对以上指标的监控。Spring Cloud 也提供了 Hystrix Dashboard的整合，
+    对监控内容转化成可视化界面。
+
+    重点：对服务监控的图形化界面呈现。
+
+2，搭建 hystrixDashboard 的服务监控的微服务项目
+    1）新建 microservicecloud-consumer-hystrixdashboar
+    2）配置 hystrix 和 hystrix-dashboard 相关的依赖
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-hystrix</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+        </dependency>
+        当然还有其他 ribbon，fegin ，eureka 等的依赖，参考项目案例
+    3）配置 application.yml
+        server:
+          port: 9001
+    4）主启动类 加上启用 hystrixDashboard 的注解 @EnableHystrixDashboard
+    5）所有的微服务提供者都需要配置监控依赖，也就是只有添加了这个依赖，才能被监控
+        <!-- actuator监控信息完善 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    6）启动 监控 微服务
+    7）测试是否启动成功 http://localhost:9001/hystrix ，如果出现一个小熊小刺猬的图片就 OK 了，其实这个图像是一个豪猪。
+
+    8）启动eureka 集群
+    9）启动 hstrix 的 部门服务提供者
+       先测试一下 服务提供者是否能访问 ：http://localhost:8001/dept/get/1
+       再测试一下 hystrix 的 ping页面死否由数据：http://localhost:8001/hystrix.stream
+    10）启动相关的服务工程
+    11）监控测试，多次刷新 访问 http://localhost:8001/dept/get/1
+        在 http://localhost:9001/hystrix 监控页面输入要监控的信息，如下：
+            -- 填写监控地址，要监控那个服务就填那个服务 http://localhost:8001/hystrix.stream
+            -- Delay 填2000 用来控制服务器上轮询监控信息的延迟时间
+            -- Title 填监控的标题，如 demo01
+        如何看监控信息呢？
+            7色，1圈，1线 ，可以看出服务的健康层度。查看查看思维导图，可以知道详细的看法。
+
+
+
+
