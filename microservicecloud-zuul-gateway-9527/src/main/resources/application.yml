@@ -1,0 +1,31 @@
+server:
+  port: 9527
+
+spring:
+  application:
+    name: microservicecloud-zuul-gateway
+
+
+eureka:
+  client:   #eureka 的客户端配置
+    service-url:
+      #defaultZone: http://localhost:7001/eureka   # 指定eureka 的注册地址（单eureka版）
+      defaultZone: http://eureka7001.com:7001/eureka/,http://eureka7002.com:7002/eureka/,http://eureka7003.com:7003/eureka/   # 指定eureka集群 的注册地址
+  instance:
+    instance-id: microservicecloud-zuul-gateway-9627 # 指定该微服务注册到 eureka 后 status 显示的信息，叫实例id。默认是“ip:应用名:端口号”
+    prefer-ip-address: true                  # 指定在eureka 的页面的 status 字段，鼠标悬浮可以显示服务端的ip 地址
+
+zuul:
+  prefix: /demo  # 给所有的路由访问加了一个统一的访问前缀
+  routes:
+    mydept.serviceId: microservicecloud-dept
+    mydept.path: /mydept/**
+  ignored-services: microservicecloud-dept  # 表示忽略用这个微服务名直接通过路由访问，如果要忽略所有的应用名直接访问使用通配符 "*"
+
+
+info:
+  app.name: microservicecloud
+  company.name: www.example.com
+  build.artifactId: $project.artifactId$  # 经过解析后，会使用项目的 project.artifactId 作为值
+  vuild.version: $project.version$  # 经过解析后，会使用项目的 project.version$ 作为值
+

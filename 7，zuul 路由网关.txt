@@ -1,0 +1,50 @@
+1，什么是zuul？
+    Zuul 包含了对请求的 路由 和 过滤 两个最主要的功能。
+    其中路由功能负责将外部请求转发到具体的微服务实例上，是实现外部访问统一入口的基础，而过滤器功能则负责对请求的处理过程进行干预，
+    是实现请求校验，服务聚合等功能的基础，Zuul 和 Eureka 进行整合，将Zuul 自身注册为 Eureka 服务治理下的应用，同时从Eureka
+    种获得其他微服务的信息，即以后的访问微服务都是通过Zuul 跳转后获得。
+
+    注意：Zuul 最终还是会注册进 Eureka
+
+    提供 代理（隐藏微服务的一些信息） + 路由（抓发到具体微服务） + 过滤（对请求进行验证） 的功能。
+
+    mobile/browser/IoT ->  API 网关  -> 微服务
+
+    zuul 就相当于园区保安。外部访问的统一网关。
+
+2，zuul 能干什么？
+    路由 和 过滤
+
+3，搭建路由模块
+    1）新建路由模块 microservicecloud-zuul-gateway-9527 模块
+    2）添加 ruul 的依赖,当然还需要加入其他需要的依赖，这里只列出ruul 的依赖
+        <!-- zuul路由网关 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-zuul</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-eureka</artifactId>
+        </dependency>
+    3）配置 application.yml
+        端口，应用名，eureka 客户端配置，访问微服务的info信息。具体看源码的配置文件吧
+    4）主启动类加上启用 zuul 的注解 @EnableZuulProxy
+    5）启动eureka集群 和 服务提供者 和 路由模块
+    6）测试不同过路由访问微服务 和 通过路由访问微服务
+      - 不通过路由访问，这个略过吧
+      - 通过路由访问的方式为：http://网关域名:网关端口/微服务的服务名/资源路径
+        eg：http://localhost:9527/microservicecloud-dept/dept/get/2
+        注意：此处写的微服务名要用对应微服务的应用名，大小写保持一致才行，不能使用eureka 上的注册的 应用名。
+    7）我们来做一个通过 zuul 来代理访问 真实微服务的功能，即不同过真实微服务的名称来访问微服务
+        1）修改 application.yml 文件
+            zuul:
+              prefix: /demo  # 给所有的路由访问加了一个统一的访问前缀
+              ignored-services: microservicecloud-dept  # 表示忽略用这个微服务名直接通过路由访问，如果要忽略所有的应用名直接访问使用通配符 "*"
+              routes:
+                mydept.serviceId: microservicecloud-dept  # 指定原来的微服务名
+                mydept.path: /mydept/**                   # 指定替代微服务名的访问路径 ** 是通配符只是后面的任意资源地址
+
+           理解：
+            未配置前我们访问地址未：http://localhost:9527/microservicecloud-dept/dept/get/2
+            配置后，访问地址未：http://localhost:9527/mydept/dept/get/2
