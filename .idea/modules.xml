@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/microservicecloud.iml" filepath="$PROJECT_DIR$/.idea/microservicecloud.iml" />
       <module fileurl="file://$PROJECT_DIR$/microservicecloud-api/microservicecloud-api.iml" filepath="$PROJECT_DIR$/microservicecloud-api/microservicecloud-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/microservicecloud-config-3344/microservicecloud-config-3344.iml" filepath="$PROJECT_DIR$/microservicecloud-config-3344/microservicecloud-config-3344.iml" />
+      <module fileurl="file://$PROJECT_DIR$/microservicecloud-config-cient-3355/microservicecloud-config-cient-3355.iml" filepath="$PROJECT_DIR$/microservicecloud-config-cient-3355/microservicecloud-config-cient-3355.iml" />
       <module fileurl="file://$PROJECT_DIR$/microservicecloud-consumer-dept-80/microservicecloud-consumer-dept-80.iml" filepath="$PROJECT_DIR$/microservicecloud-consumer-dept-80/microservicecloud-consumer-dept-80.iml" />
       <module fileurl="file://$PROJECT_DIR$/microservicecloud-consumer-dept-feign/microservicecloud-consumer-dept-feign.iml" filepath="$PROJECT_DIR$/microservicecloud-consumer-dept-feign/microservicecloud-consumer-dept-feign.iml" />
       <module fileurl="file://$PROJECT_DIR$/microservicecloud-consumer-hystrixdashboar/microservicecloud-consumer-hystrixdashboar.iml" filepath="$PROJECT_DIR$/microservicecloud-consumer-hystrixdashboar/microservicecloud-consumer-hystrixdashboar.iml" />

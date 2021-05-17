@@ -1,0 +1,20 @@
+1，实战内容
+    我们可以和config + Github 进行配置修改并获得内容
+    此时我们做一个 Eureka 服务 + 一个 Dept 访问的微服务，将两个微服务的配置统一由github 获得实现统一配置的
+    分布式管理，完成多环境变更。
+
+2，步骤
+    1）新建 eureka 服务的配置文件，内容参看脑图 ,并push 到 github
+        microservicecloud-config-eureka-client.yml
+        microservicecloud-dept-provider-config-client.yml
+    2）新建整合了 springCloud Config 的Eureka 服务模块，microservicecloud-config-eureka-client-7001
+       加入config 客户端的bootstrap.yml 和 application.yml(注意这个只需要配置到应用名即可，其他的让应用启动时去配置中心获取)
+       加入主启动类，并加入对应的注解
+       ......
+    3）新建整合了 springcloud Config 的 部门 服务提供者模块 ，microservicecloud-dept-provider-config-client-8001
+        加入和第二点 config 一样的内容，其他maven 依赖和之前一样
+    4）测试1：通过修改bootstrap.yml 的环境标识启动应用，查看是否得到了对用的环境的配置信息（比如修改数据库，得到的结果是对应数据库的信息）
+       测试2：通过修改github 上的配置文件内容，然后重启微服务，测试获取到的信息（比如修改数据库，得到的结果是对应数据库的信息）
+
+
+

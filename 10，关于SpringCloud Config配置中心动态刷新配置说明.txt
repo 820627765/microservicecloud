@@ -1,0 +1,16 @@
+在之前的例子中，讲的是修改配置后，需要重启微服务时加载最新配置，并没有讲到不关服务的动态刷新配置。
+如果要实现动态刷新，则需要额外增加一些注解 和 开启一些刷新功能，如下：
+ -- @RefreshScope
+ -- 配置actuator 开放使用 refresh端口
+    #Actuator配置开放所有端点
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: "*"
+      endpoint:
+        health:
+          show-details: always
+ -- 修改github 的配置后，需要手动调用一下 刷新端口才行（也可以配置github push 后自动调用）
+
+ 总之：因为这个技术我现在用不到所以，暂时知道大致使用即可，后续如果需要了，再来研究下补充进来。

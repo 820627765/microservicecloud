@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    config:
+      name: microservicecloud-config-client # 需要从github上读取的资源名称（配置文件的文件名），注意没有yml 后缀
+      profile: dev #本次访问的配置项
+      label: master # 本次访问的git 分支，当前表示主分支
+      uri: http://localhost:3344 # 本微服务启动后，先去找 3344 这个服务，通过 3344 这个Config Server 去github上获取配置信息
